@@ -1,0 +1,51 @@
+# https://Taskfile.dev
+version: 3
+
+tasks:
+  install:prez-ui:
+    cmds:
+      - pnpm dlx create-prez-app@latest prez-ui
+      - sed -i 's/workspace:\*/^4.0.0/' prez-ui/package.json # the need to do this step should be removed in the next release
+      - pnpm install --prefix prez-ui
+    status:
+      - test -d prez-ui
+
+  build:prez-ui:
+    sources:
+      - ../prez-ui
+    dir: prez-ui
+    cmds:
+      - pnpm generate
+
+  dev:up:
+    cmds:
+      - docker compose -f docker/compose.yml up -d
+
+  dev:down:
+    cmds:
+      - docker compose -f docker/compose.yml down
+
+  dev:restart:
+    cmds:
+      - docker compose -f docker/compose.yml restart
+
+  dev:load:
+    cmds:
+      - uvx kurra db upload data http://localhost:3030/demods
+
+  dev:reload:
+    cmds:
+      - task: dev:restart
+      - task: dev:load
+
+  demo:start:
+    cmds:
+      - task: install:prez-ui
+      - task: build:prez-ui
+      - task: dev:up
+      - task: dev:load
+      - uv run python -m webbrowser -t 'http://localhost:3000/catalogs'
+
+  demo:stop:
+    cmds:
+      - task: dev:down

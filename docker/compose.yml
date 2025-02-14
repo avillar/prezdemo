@@ -1,0 +1,38 @@
+services:
+  fuseki:
+    image: ghcr.io/kurrawong/fuseki-geosparql:latest
+    ports:
+      - 3030:3030
+    volumes:
+      - type: bind
+        source: ../fuseki/demods.ttl
+        target: /fuseki/config.ttl
+    healthcheck:
+      test: wget -qO- http://localhost:3030/$/ping
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  prez:
+    image: ghcr.io/rdflib/prez:latest
+    ports:
+      - 8000:8000
+    environment:
+      SPARQL_ENDPOINT: http://fuseki:3030/demods/sparql
+      ENABLE_SPARQL_ENDPOINT: true
+    depends_on:
+      fuseki:
+        condition: service_healthy
+
+  prez-ui:
+    image: nginx:alpine
+    ports:
+      - 3000:3000
+    volumes:
+      - type: bind
+        source: ../prez-ui/dist
+        target: /app
+      - type: bind
+        source: nginx.conf
+        target: /etc/nginx/nginx.conf
+    entrypoint: ["nginx", "-g", "daemon off;"]
