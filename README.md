@@ -7,6 +7,7 @@ A repository that can be used to quickly stand up and demo the full prez stack l
 - [task](https://taskfile.dev/installation/)
 - [docker](https://docs.docker.com/engine/install/)
 - [pnpm](https://pnpm.io/installation)
+- [node](https://nodejs.org/en)
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 
