@@ -5,7 +5,6 @@ tasks:
   install:prez-ui:
     cmds:
       - pnpm dlx create-prez-app@latest prez-ui
-      - sed -i 's/workspace:\*/^4.0.0/' prez-ui/package.json # the need to do this step should be removed in the next release
       - pnpm install --prefix prez-ui
     status:
       - test -d prez-ui
