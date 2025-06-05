@@ -30,7 +30,7 @@ tasks:
 
   dev:load:
     cmds:
-      - uvx kurra db upload data http://localhost:3030/demods
+      - uvx kurra db upload data http://localhost:3030/demods -g https://graphs/prezdemo
 
   dev:reload:
     cmds:
