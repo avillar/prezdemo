@@ -15,11 +15,22 @@ PREFIX endpoint: <https://prez.dev/endpoint/ogcrecords/>
 PREFIX shext: <http://example.com/shacl-extension#>
 
 
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+PREFIX altr-ext: <http://www.w3.org/ns/dx/connegp/altr-ext#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prez: <https://prez.dev/>
+PREFIX prof: <http://www.w3.org/ns/dx/prof/>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX shext: <http://example.com/shacl-extension#>
+
+
 prez:OGCSchemesObjectProfileExtended1
     a prof:Profile, prez:ObjectProfile, sh:NodeShape ;
     dcterms:title "OGC Concept Scheme Object Profile" ;
     dcterms:description "A profile for SKOS Concept Schemes" ;
-    dcterms:identifier "ogc-schemes-object"^^xsd:token ;
+    dcterms:identifier "ogcse"^^xsd:token ;
     altr-ext:hasResourceFormat
         "application/ld+json",
         "application/anot+ld+json",
@@ -27,136 +38,22 @@ prez:OGCSchemesObjectProfileExtended1
         "text/anot+turtle",
         "text/turtle" ;
     altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
-    altr-ext:constrainsClass skos:ConceptScheme ;
+    altr-ext:constrainsClass skos:ConceptScheme , dcat:Catalog;
     sh:property
         [
             sh:path
                 [
                     sh:union (
-                           [ shext:bNodeDepth "2" ]
-                           shext:allPredicateValues
-                           sh:path (
-                             [ sh:inversePath skos:inScheme ]
-                             sh:union (
-                               [ shext:bNodeDepth "2" ]
-                               shext:allPredicateValues
-                             )
-                           )
-                           sh:path (
-                             [ sh:inversePath skos:topConceptOf]
-                             sh:union (
-                               [ shext:bNodeDepth "2" ]
-                               shext:allPredicateValues
-                             )
-                           )
-                           sh:path (
-                             sh:hasTopConcept
-                             sh:union (
-                               [ shext:bNodeDepth "2" ]
-                               shext:allPredicateValues
-                             )
-                           )
+                            [ shext:bNodeDepth "2" ]
+                            shext:allPredicateValues
+                            ( [ sh:inversePath skos:inScheme ] shext:allPredicateValues )
+#                            ( [ sh:inversePath skos:inScheme ] [ shext:bNodeDepth "2" ] )      # Not implemented yet
+                            ( [ sh:inversePath skos:topConceptOf ] shext:allPredicateValues )
+#                            ( [ sh:inversePath skos:topConceptOf ] [ shext:bNodeDepth "2" ] )  # Not implemented yet
+                            ( skos:hasTopConcept shext:allPredicateValues )
+#                            ( skos:hasTopConcept [ shext:bNodeDepth "2" ] )                    # Not implemented yet
                        )
                 ]
         ]
    ;
 .
-
-## Example SPARQL query using the above
-# CONSTRUCT {
-#   <https://www.opengis.net/def/CaLAThe/5.0> ?bn_p_1 ?bn_o_1 .
-#   ?bn_o_1 ?bn_p_2 ?bn_o_2 .
-#   ?bn_o_2 ?bn_p_3 ?bn_o_3 .
-#   <https://www.opengis.net/def/CaLAThe/5.0> ?bn_p_1 ?bn_o_1 .
-#   ?bn_o_1 ?bn_p_2 ?bn_o_2 .
-#   ?prof_1_node_11 <http://www.w3.org/ns/shacl#union> ?prof_1_node_12 .
-#   <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#hasTopConcept> ?prof_1_node_11 .
-#   <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#path> ?prof_1_node_10 .
-#   ?prof_1_node_7 <http://www.w3.org/ns/shacl#union> ?prof_1_node_8 .
-#   ?prof_1_node_7 <http://www.w3.org/2004/02/skos/core#topConceptOf> <https://www.opengis.net/def/CaLAThe/5.0> .
-#   <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#path> ?prof_1_node_6 .
-#   ?prof_1_node_3 <http://www.w3.org/ns/shacl#union> ?prof_1_node_4 .
-#   ?prof_1_node_3 <http://www.w3.org/2004/02/skos/core#inScheme> <https://www.opengis.net/def/CaLAThe/5.0> .
-#   <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#path> ?prof_1_node_2 .
-#   <https://www.opengis.net/def/CaLAThe/5.0> ?preds ?vals .
-# }
-# WHERE {
-#   {
-#     <https://www.opengis.net/def/CaLAThe/5.0> ?preds ?vals .
-#   }
-#   UNION
-#   {
-#     <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#path> ?prof_1_node_2 .
-#   }
-#   UNION
-#   {
-#     ?prof_1_node_3 <http://www.w3.org/ns/shacl#union> ?prof_1_node_4 .
-#     ?prof_1_node_3 <http://www.w3.org/2004/02/skos/core#inScheme> <https://www.opengis.net/def/CaLAThe/5.0> .
-#   }
-#   UNION
-#   {
-#     <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#path> ?prof_1_node_6 .
-#   }
-#   UNION
-#   {
-#     ?prof_1_node_7 <http://www.w3.org/ns/shacl#union> ?prof_1_node_8 .
-#     ?prof_1_node_7 <http://www.w3.org/2004/02/skos/core#topConceptOf> <https://www.opengis.net/def/CaLAThe/5.0> .
-#   }
-#   UNION
-#   {
-#     <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#path> ?prof_1_node_10 .
-#   }
-#   UNION
-#   {
-#     ?prof_1_node_11 <http://www.w3.org/ns/shacl#union> ?prof_1_node_12 .
-#     <https://www.opengis.net/def/CaLAThe/5.0> <http://www.w3.org/ns/shacl#hasTopConcept> ?prof_1_node_11 .
-#   }
-#   UNION
-#   {
-#     <https://www.opengis.net/def/CaLAThe/5.0> ?bn_p_1 ?bn_o_1 .
-#     ?bn_o_1 ?bn_p_2 ?bn_o_2 .
-#     FILTER isBlank(?bn_o_1)
-#   }
-#   UNION
-#   {
-#     <https://www.opengis.net/def/CaLAThe/5.0> ?bn_p_1 ?bn_o_1 .
-#     ?bn_o_1 ?bn_p_2 ?bn_o_2 .
-#     ?bn_o_2 ?bn_p_3 ?bn_o_3 .
-#     FILTER isBlank(?bn_o_1)
-#     FILTER isBlank(?bn_o_2)
-#   }
-# }
-
-
-prez:OGCSchemesObjectProfileExtended2
-    a prof:Profile, prez:ObjectProfile, sh:NodeShape ;
-    dcterms:title "OGC Concept Scheme Object Profile" ;
-    dcterms:description "A profile for SKOS Concept Schemes" ;
-    dcterms:identifier "ogc-schemes-object"^^xsd:token ;
-    altr-ext:hasResourceFormat
-        "application/ld+json",
-        "application/anot+ld+json",
-        "application/rdf+xml",
-        "text/anot+turtle",
-        "text/turtle" ;
-    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
-    altr-ext:constrainsClass skos:ConceptScheme ;
-    sh:property
-        [
-            sh:path
-                [
-                    sh:union (
-                           [ shext:bNodeDepth "2" ]
-                           shext:allPredicateValues
-                           sh:path (
-                             sh:sh:alternativePath ( [ sh:inversePath skos:inScheme ] [ sh:inversePath skos:topConceptOf] sh:hasTopConcept )
-                             sh:union (
-                               [ shext:bNodeDepth "2" ]
-                               shext:allPredicateValues
-                             )
-                           )
-                       )
-                ]
-        ]
-   ;
-. 
